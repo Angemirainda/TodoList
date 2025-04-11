@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Task;
 
 class User extends Authenticatable
 {
@@ -42,4 +43,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function tasks() // Define the relationship with the Task model
+{
+    return $this->hasMany(Task::class); // This indicates that a user can have many tasks
+    // The foreign key in the tasks table is assumed to be user_id
+    // This will automatically link the tasks to the user based on the user_id foreign key
+
+
 }
+}
+
+

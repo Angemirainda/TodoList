@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
+use App\Http\Controllers\TaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,8 @@ use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+
 
 // Route publique pour le cookie CSRF (nécessaire pour les SPA)
 Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
@@ -33,6 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     
+    Route::get('/tasks', [TaskController::class, 'index']);
+    Route::post('/tasks', [TaskController::class, 'store']);
+    Route::put('/tasks/{task}', [TaskController::class, 'update']);
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
+    Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle']);
     // Alternative avec un contrôleur
     // Route::get('/user', [AuthController::class, 'user']);
 });

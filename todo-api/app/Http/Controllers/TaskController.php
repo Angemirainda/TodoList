@@ -24,7 +24,7 @@ class TaskController extends Controller
 
         // Récupère le filtre depuis la requête (par défaut : all)
         $filter = $request->query('filter', 'all');
-        $search = $request->query('search', null); //pour afficher les taches par mot clé lorsqu'on les recherche dans la barre de recherche
+        $search = $request->query('search', null); //pour afficher les taches par mot clé lorsqu'on les recherche dans la barre de
         // Commence une requête sur les tâches de l'utilisateur
         $query = $user->tasks()->latest();
 
@@ -44,6 +44,16 @@ class TaskController extends Controller
         return $query->get();
             // return auth()->user()->tasks()->latest()->get();
     }
+
+     //methode pour voir toutes les taches des autres utilisateurs
+     public function allTasks()
+{
+    // On récupère toutes les tâches avec leur utilisateur
+    $tasks = \App\Models\Task::with('user')->latest()->get();
+
+    return response()->json($tasks);
+}
+
 
     /**
      * Show the form for creating a new resource.

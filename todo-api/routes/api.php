@@ -35,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    // Route pour permettre d'afficher toutes les taches des autres utilisateurs
+    Route::get('/all-tasks', [TaskController::class, 'allTasks']);
+
     
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);

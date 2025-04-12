@@ -7,7 +7,7 @@ const TaskList = ({ tasks, onToggle, onDelete, onEdit }) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 ">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

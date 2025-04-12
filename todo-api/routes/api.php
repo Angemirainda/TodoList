@@ -51,3 +51,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+//Pour tester mon filtrage dans postman
+// http://localhost:8000/api/tasks?filter=all
+// http://localhost:8000/api/tasks?filter=done
+// http://localhost:8000/api/tasks?filter=todo
+
+
+

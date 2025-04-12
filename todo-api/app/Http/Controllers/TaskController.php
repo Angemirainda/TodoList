@@ -17,9 +17,27 @@ class TaskController extends Controller
      //la méthode auth() permet de recuperer l'utilisateur connecté
      //la méthode user() permet de recuperer l'utilisateur
      //la méthode tasks() permet de recuperer les taches de l'utilisateur
-    public function index()
-    {
-        return auth()->user()->tasks()->latest()->get();
+    public function index(Request $request)
+    {    
+        // Récupère l'utilisateur connecté
+        $user = auth()->user();
+
+        // Récupère le filtre depuis la requête (par défaut : all)
+        $filter = $request->query('filter', 'all');
+
+        // Commence une requête sur les tâches de l'utilisateur
+        $query = $user->tasks()->latest();
+
+        // Applique un filtre si demandé
+        if ($filter === 'done') {
+            $query->where('completed', true);
+        } elseif ($filter === 'todo') {
+            $query->where('completed', false);
+        }
+
+        // Exécute la requête et retourne les tâches
+        return $query->get();
+            // return auth()->user()->tasks()->latest()->get();
     }
 
     /**

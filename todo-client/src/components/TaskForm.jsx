@@ -1,40 +1,33 @@
-// // TaskForm.jsx
-// // // Composant pour ajouter une nouvelle tâche
-// import React, { useState } from 'react';
-// import api from '../api/axios';
+import { useState, useEffect } from 'react';
 
-// function TaskForm({ onTaskAdded }) {
-//   const [title, setTitle] = useState('');
+const TaskForm = ({ onSubmit, currentTask }) => {
+  const [title, setTitle] = useState('');
 
-//   const handleSubmit = async (e) => { 
-//     e.preventDefault();
-//     if (!title.trim()) return;
+  useEffect(() => {
+    if (currentTask) setTitle(currentTask.title);
+  }, [currentTask]);
 
-//     try {
-//       await api.post('/tasks', { title });
-//       setTitle('');
-//       onTaskAdded(); // Recharger les tâches
-//     } catch (err) {
-//       console.error('Erreur lors de l’ajout de la tâche', err);
-//     }
-//   };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onSubmit({ title });
+    setTitle('');
+  };
 
-//   return (
-//     <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
-//       <input
-//         type="text"
-//         value={title}
-//         onChange={(e) => setTitle(e.target.value)}
-//         placeholder="Nouvelle tâche"
-//         className="flex-1 border p-2 rounded"
-//       />
-//       <button type="submit" className="bg-blue-600 text-white px-4 rounded">
-//         Ajouter
-//       </button>
-//     </form>
-//   );
-// }
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input
+        type="text"
+        value={title}
+        placeholder="Nouvelle tâche..."
+        onChange={(e) => setTitle(e.target.value)}
+        className="flex-1 p-2 border border-gray-300 rounded"
+      />
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        {currentTask ? 'Modifier' : 'Ajouter'}
+      </button>
+    </form>
+  );
+};
 
-// export default TaskForm;
-
-
+export default TaskForm;

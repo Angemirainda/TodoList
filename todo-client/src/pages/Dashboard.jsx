@@ -1,95 +1,110 @@
 import React from "react";
+import { useState, useEffect } from 'react';
+import api from '../api/axios'; // Axios configuré
+import TaskList from '../components/TaskList';
+import TaskForm from '../components/TaskForm';
 
 const Dashboard = () => {
+  const [tasks, setTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+  const [filter, setFilter] = useState('all'); // ( 'all' | 'done' | 'todo') ajout de l'etat du filtre afin d'envoyer le bon filtre à l'API
+
+
+  // Récupérer les tâches au chargement
+  useEffect(() => {
+    fetchTasks();
+  }, [filter]); //  tableau de dépendances contenant "filter"
+
+  // GET /tasks
+  const fetchTasks = async () => {
+    try {
+      const res = await api.get('/tasks', {
+        params: { filter }, // ✅ envoie ?filter=all ou done ou todo
+      });
+      setTasks(res.data);
+    } 
+
+    //   const res = await api.get('/tasks');
+    //   setTasks(res.data);
+    // } 
+    catch (error) {
+      console.error('Erreur lors du chargement des tâches :', error);
+    }
+  };
+
+  // POST /tasks (créer) ou PUT /tasks/{id} (modifier)
+  const handleCreateOrUpdate = async (data) => {
+    try {
+      if (editingTask) {
+        await api.put(`/tasks/${editingTask.id}`, data);
+        setEditingTask(null);
+      } else {
+        await api.post('/tasks', data);
+      }
+      fetchTasks();
+    } catch (error) {
+      console.error('Erreur lors de la création/modification :', error);
+    }
+  };
+
+  // DELETE /tasks/{id}
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/tasks/${id}`);
+      fetchTasks();
+    } catch (error) {
+      console.error('Erreur lors de la suppression :', error);
+    }
+  };
+
+  // PATCH /tasks/{id}/toggle
+  const handleToggle = async (id) => {
+    try {
+      await api.patch(`/tasks/${id}/toggle`);
+      fetchTasks();
+    } catch (error) {
+      console.error('Erreur lors du changement de statut :', error);
+    }
+  };
+
+  const handleEdit = (task) => {
+    setEditingTask(task);
+  };
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-blue-600 text-white flex flex-col">
-        <div className="p-4 text-center font-bold text-xl border-b border-blue-500">
-          Todo Dashboard
-        </div>
-        <nav className="flex-1 p-4">
-          <ul className="space-y-4">
-            <li>
-              <a href="#" className="block py-2 px-4 rounded hover:bg-blue-500">
-                Vue d'ensemble
-              </a>
-            </li>
-            <li>
-              <a href="#" className="block py-2 px-4 rounded hover:bg-blue-500">
-                Ajouter une tâche
-              </a>
-            </li>
-            <li>
-              <a href="#" className="block py-2 px-4 rounded hover:bg-blue-500">
-                Tâches en cours
-              </a>
-            </li>
-            <li>
-              <a href="#" className="block py-2 px-4 rounded hover:bg-blue-500">
-                Tâches supprimées
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div className="p-4 border-t border-blue-500">
-          <button className="w-full py-2 px-4 bg-red-500 rounded hover:bg-red-600">
-            Déconnexion
+    <div>
+      {/* Boutons de filtrage */}
+      <div className="flex justify-center gap-4 mb-6">
+        {['all', 'done', 'todo'].map((key) => (
+          <button
+            key={key}
+            onClick={() => setFilter(key)}
+            className={`px-3 py-1 rounded ${
+              filter === key ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+            }`}
+          >
+            {key === 'all' ? 'Toutes' : key === 'done' ? 'Terminées' : 'En cours'}
           </button>
+        ))}
+      </div>
+      <div className="max-w-xl mx-auto mt-10 px-4">
+        <h1 className="text-2xl font-bold mb-6 text-center">📋 Ma Todo List</h1>
+  
+        {/* Formulaire d'ajout / modification */}
+        <TaskForm onSubmit={handleCreateOrUpdate} currentTask={editingTask} />
+  
+        {/* Liste des tâches */}
+        <div className="mt-6">
+          <TaskList
+            tasks={tasks}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6">
-        {/* Header */}
-        <header className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Bienvenue sur le Dashboard</h1>
-          <p className="text-gray-600">Gérez vos tâches efficacement.</p>
-        </header>
-
-        {/* Stats Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold text-gray-800">Tâches totales</h2>
-            <p className="text-4xl font-bold text-blue-600">10</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold text-gray-800">Tâches supprimées</h2>
-            <p className="text-4xl font-bold text-red-600">2</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold text-gray-800">Tâches en cours</h2>
-            <p className="text-4xl font-bold text-green-600">8</p>
-          </div>
-        </section>
-
-        {/* Add Task Form */}
-        <section className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Ajouter une tâche</h2>
-          <form>
-            <div className="mb-4">
-              <label htmlFor="taskTitle" className="block text-gray-700 font-bold mb-2">
-                Titre de la tâche
-              </label>
-              <input
-                type="text"
-                id="taskTitle"
-                placeholder="Entrez le titre de la tâche"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-           
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Ajouter
-            </button>
-          </form>
-        </section>
-      </main>
+      </div>
     </div>
   );
-};
+}
 
 export default Dashboard;
+

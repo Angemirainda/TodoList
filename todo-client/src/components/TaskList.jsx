@@ -1,6 +1,7 @@
 import TaskItem from './TaskItems';
 
 const TaskList = ({ tasks, onToggle, onDelete, onEdit }) => {
+  console.log(tasks);
   if (!tasks.length) {
     return <p className="text-center text-gray-500">Aucune tâche pour l'instant.</p>;
   }

@@ -24,16 +24,21 @@ class TaskController extends Controller
 
         // Récupère le filtre depuis la requête (par défaut : all)
         $filter = $request->query('filter', 'all');
-
+        $search = $request->query('search', null); //pour afficher les taches par mot clé lorsqu'on les recherche dans la barre de recherche
         // Commence une requête sur les tâches de l'utilisateur
         $query = $user->tasks()->latest();
 
-        // Applique un filtre si demandé
+        // Applique un filtre si demandé par statut
         if ($filter === 'done') {
             $query->where('completed', true);
         } elseif ($filter === 'todo') {
             $query->where('completed', false);
         }
+          // Filtrage par mot-clé
+          if (!empty($search)) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+        
 
         // Exécute la requête et retourne les tâches
         return $query->get();
